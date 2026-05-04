@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const AuthRouter = require("./Routes/AuthRouter");
 
 const { HoldingsModel } = require("./model/HoldingsModel");
 const { PositionsModel } = require("./model/PositionsModel");
@@ -205,6 +206,8 @@ app.post("/newOrder", async (req, res) => {
   newOrder.save();
   res.send("Order saved!");
 });
+
+app.use("/auth",AuthRouter)
 
 app.listen(PORT, () => {
   console.log("App started!");
