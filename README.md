@@ -225,22 +225,6 @@ JWT_SECRET=
 
 ---
 
-
-# 🚀 Deployment
-
-### Backend
-Deploy on **Render**
-
-### Frontend
-Deploy on **Vercel**
-
-### Dashboard
-Deploy on **Vercel**
-
-Remember to configure the backend URL in the frontend and dashboard after deployment.
-
----
-
 # 🧪 Future Improvements
 
 - Live Stock Prices
