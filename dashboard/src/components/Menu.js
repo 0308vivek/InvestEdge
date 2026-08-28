@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 
 import { Link } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 
 const Menu = () => {
+  const { user, logout } = useAuth();
   const [selectedMenu, setSelectedMenu] = useState(0);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
@@ -10,12 +12,18 @@ const Menu = () => {
     setSelectedMenu(index);
   };
 
-  const handleProfileClick = (index) => {
-    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  const handleProfileClick = () => {
+    setIsProfileDropdownOpen((open) => !open);
   };
 
   const menuClass = "menu";
   const activeMenuClass = "menu selected";
+  const initials = (user?.name || "U")
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <div className="menu-container">
@@ -90,9 +98,19 @@ const Menu = () => {
           </li>
         </ul>
         <hr />
-        <div className="profile" onClick={handleProfileClick}>
-          <div className="avatar">ZU</div>
-          <p className="username">USERID</p>
+        <div className="profile-wrap">
+          <div className="profile" onClick={handleProfileClick}>
+            <div className="avatar">{initials}</div>
+            <p className="username">{user?.name || "USER"}</p>
+          </div>
+          {isProfileDropdownOpen && (
+            <div className="profile-dropdown">
+              <p>{user?.email}</p>
+              <button type="button" onClick={logout}>
+                Logout
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

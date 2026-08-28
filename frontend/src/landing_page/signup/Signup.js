@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Signup.css";
 import { handleError, handleSuccess } from "./utils";
+import { authFetch, DASHBOARD_URL } from "../../auth";
 
 function Signup() {
   const [signupInfo, setSignupInfo] = useState({
@@ -10,13 +12,11 @@ function Signup() {
     email: "",
     password: "",
   });
-  const navigate = useNavigate();
+  const [submitting, setSubmitting] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
-    const copySignupInfo = { ...signupInfo };
-    copySignupInfo[name] = value;
-    setSignupInfo(copySignupInfo);
+    setSignupInfo((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSignup = async (e) => {
@@ -25,31 +25,28 @@ function Signup() {
     if (!name || !email || !password) {
       return handleError("All fields are required");
     }
+
     try {
-      const url = "http://localhost:3002/auth/signup";
-      const response = await fetch(url, {
+      setSubmitting(true);
+      const { data } = await authFetch("/auth/signup", {
         method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
         body: JSON.stringify(signupInfo),
       });
-      const result = await response.json();
-      const { success, message,error } = result;
-      if (success) {
-        handleSuccess(message);
+
+      if (data.success) {
+        handleSuccess(data.message);
         setTimeout(() => {
-            navigate('/login')
-        }, 1000);
-      }else if(error){
-        const details = error?.details[0].message;
-        handleError(details);
-      }else if(!success){
-        handleError(message);
+          window.location.href = DASHBOARD_URL;
+        }, 800);
+      } else if (data.error?.details?.[0]?.message) {
+        handleError(data.error.details[0].message);
+      } else {
+        handleError(data.message || "Sign up failed");
       }
-      console.log(result);
     } catch (err) {
-      handleError(err);
+      handleError(err.message || "Sign up failed");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -87,12 +84,14 @@ function Signup() {
               onChange={handleChange}
               type="password"
               name="password"
-              placeholder="Enter your password..."
+              placeholder="At least 6 characters..."
               value={signupInfo.password}
             />
           </div>
 
-          <button type="submit">SignUp</button>
+          <button type="submit" disabled={submitting}>
+            {submitting ? "Creating account..." : "SignUp"}
+          </button>
 
           <span>
             Already have an account? <Link to="/login">Login</Link>

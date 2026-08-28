@@ -1,21 +1,21 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Signup.css";
 import { handleError, handleSuccess } from "./utils";
+import { authFetch, DASHBOARD_URL } from "../../auth";
 
 function Login() {
   const [loginInfo, setLoginInfo] = useState({
     email: "",
     password: "",
   });
-  const navigate = useNavigate();
+  const [submitting, setSubmitting] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value);
-    const copyLoginInfo = { ...loginInfo };
-    copyLoginInfo[name] = value;
-    setLoginInfo(copyLoginInfo);
+    setLoginInfo((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleLogin = async (e) => {
@@ -24,34 +24,28 @@ function Login() {
     if (!email || !password) {
       return handleError("All fields are required");
     }
+
     try {
-      const url = "http://localhost:3002/auth/login";
-      const response = await fetch(url, {
+      setSubmitting(true);
+      const { data } = await authFetch("/auth/login", {
         method: "POST",
-        headers: {
-          "Content-type": "application/json",
-        },
         body: JSON.stringify(loginInfo),
       });
-      const result = await response.json();
-      const { success, message,jwtToken,user, error } = result;
-      if (success) {
-        handleSuccess(message);
-        localStorage.setItem('token',jwtToken);
-        localStorage.setItem('loggedInUser',user?.name);
 
+      if (data.success) {
+        handleSuccess(data.message);
         setTimeout(() => {
-          window.location.href = `http://localhost:3000?token=${result.jwtToken}`;
-        }, 1000);
-      } else if (error) {
-        const details = error?.details[0].message;
-        handleError(details);
-      } else if (!success) {
-        handleError(message);
+          window.location.href = DASHBOARD_URL;
+        }, 800);
+      } else if (data.error?.details?.[0]?.message) {
+        handleError(data.error.details[0].message);
+      } else {
+        handleError(data.message || "Login failed");
       }
-      console.log(result);
     } catch (err) {
-      handleError(err);
+      handleError(err.message || "Login failed");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -82,7 +76,9 @@ function Login() {
             />
           </div>
 
-          <button type="submit">Login</button>
+          <button type="submit" disabled={submitting}>
+            {submitting ? "Logging in..." : "Login"}
+          </button>
 
           <span>
             Don't have an account? <Link to="/signup">SignUp </Link>

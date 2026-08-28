@@ -4,11 +4,15 @@ const signupValidation = (req, res, next) => {
   const schema = Joi.object({
     name: Joi.string().min(3).max(100).required(),
     email: Joi.string().email().required(),
-    password: Joi.string().min(4).max(100).required(),
+    password: Joi.string().min(6).max(100).required(),
   });
   const { error } = schema.validate(req.body);
   if (error) {
-    return res.status(400).json({ message: "Bad Request",error});
+    return res.status(400).json({
+      message: error.details?.[0]?.message || "Bad Request",
+      success: false,
+      error,
+    });
   }
   next();
 };
@@ -20,9 +24,13 @@ const loginValidation = (req, res, next) => {
   });
   const { error } = schema.validate(req.body);
   if (error) {
-    return res.status(400).json({ message: "Bad Request",error});
+    return res.status(400).json({
+      message: error.details?.[0]?.message || "Bad Request",
+      success: false,
+      error,
+    });
   }
   next();
 };
 
-module.exports = {signupValidation,loginValidation};
+module.exports = { signupValidation, loginValidation };

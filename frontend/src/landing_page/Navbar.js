@@ -1,7 +1,18 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
+import { DASHBOARD_URL } from "../auth";
 
 function NavBar() {
+  const { user, loading, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    await logout();
+    navigate("/");
+  };
+
   return (
     <nav
       className="navbar navbar-expand-lg border-bottom"
@@ -29,11 +40,44 @@ function NavBar() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <form className="d-flex" role="search">
             <ul className="navbar-nav mb-lg-0">
-              <li className="nav-item">
-                <Link className="nav-link active" aria-current="page" to="/signup">
-                  Signup
-                </Link>
-              </li>
+              {!loading && user ? (
+                <>
+                  <li className="nav-item">
+                    <a
+                      className="nav-link active"
+                      href={DASHBOARD_URL}
+                    >
+                      Dashboard
+                    </a>
+                  </li>
+                  <li className="nav-item">
+                    <a
+                      className="nav-link active"
+                      href="/login"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </a>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="nav-item">
+                    <Link
+                      className="nav-link active"
+                      aria-current="page"
+                      to="/signup"
+                    >
+                      Signup
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link className="nav-link active" to="/login">
+                      Login
+                    </Link>
+                  </li>
+                </>
+              )}
               <li className="nav-item">
                 <Link className="nav-link active" to="/about">
                   About
@@ -54,8 +98,6 @@ function NavBar() {
                   Support
                 </Link>
               </li>
-                
-              
             </ul>
           </form>
         </div>

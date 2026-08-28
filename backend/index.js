@@ -2,8 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const AuthRouter = require("./Routes/AuthRouter");
+const { ensureAuth } = require("./MiddleWares/ensureAuth");
 
 const { HoldingsModel } = require("./model/HoldingsModel");
 const { PositionsModel } = require("./model/PositionsModel");
@@ -11,10 +13,25 @@ const { OrdersModel } = require("./model/OrdersModel");
 
 const PORT = process.env.PORT || 3002;
 const uri = process.env.MONGO_URL;
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:3001",
+  process.env.DASHBOARD_URL || "http://localhost:3000",
+];
+
+if (!process.env.JWT_SECRET) {
+  console.error("JWT_SECRET is not set. Add it to backend/.env");
+  process.exit(1);
+}
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+);
+app.use(cookieParser());
 app.use(bodyParser.json());
 
 // app.get("/addHoldings", async (req, res) => {
@@ -185,26 +202,26 @@ app.use(bodyParser.json());
 //   res.send("Done!");
 // });
 
-app.get("/allHoldings", async (req, res) => {
+app.get("/allHoldings", ensureAuth, async (req, res) => {
   let allHoldings = await HoldingsModel.find({});
   res.json(allHoldings);
 });
 
-app.get("/allPositions", async (req, res) => {
+app.get("/allPositions", ensureAuth, async (req, res) => {
   let allPositions = await PositionsModel.find({});
   res.json(allPositions);
 });
 
-app.post("/newOrder", async (req, res) => {
+app.post("/newOrder", ensureAuth, async (req, res) => {
   let newOrder = new OrdersModel({
     name: req.body.name,
     qty: req.body.qty,
     price: req.body.price,
-    mode: req.body.mode, 
+    mode: req.body.mode,
   });
 
-  newOrder.save();
-  res.send("Order saved!");
+  await newOrder.save();
+  res.json({ message: "Order saved!", success: true });
 });
 
 app.use("/auth",AuthRouter)

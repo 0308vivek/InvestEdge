@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Route, Routes } from "react-router-dom";
 
 import Apps from "./Apps";
@@ -11,30 +11,6 @@ import WatchList from "./WatchList";
 import { GeneralContextProvider } from "./GeneralContext";
 
 const Dashboard = () => {
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const tokenFromURL = params.get("token");
-
-    if (tokenFromURL) {
-      localStorage.setItem("token", tokenFromURL);
-
-      window.history.replaceState({}, document.title, "/");
-    }
-
-    setIsReady(true);
-  }, []);
-
-  const token = localStorage.getItem("token");
-
-  if (!isReady) return null;
-
-  if (!token) {
-    window.location.href = "http://localhost:3001/login";
-    return null;
-  }
-
   return (
     <div className="dashboard-container">
       <GeneralContextProvider>

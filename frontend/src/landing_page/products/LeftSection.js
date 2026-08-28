@@ -10,12 +10,12 @@ function LeftSection({
   appStore,
 }) {
   return (
-    <div className="container mt-5">
-      <div className="row">
-        <div className="col-6">
-          <img src={imageURL} />
+    <div className="container py-4 py-lg-5">
+      <div className="row align-items-center g-4">
+        <div className="col-12 col-lg-6">
+          <img className="img-fluid w-100" src={imageURL} alt={`${productName} platform`} />
         </div>
-        <div className="col-6 p-5 mt-5">
+        <div className="col-12 col-lg-6 p-3 p-lg-5">
           <h1>{productName}</h1>
           <p>{productDescription}</p>
           <div>
@@ -23,7 +23,7 @@ function LeftSection({
               href={tryDemo}
               style={{ textDecoration: "none ", color: "#0B58CA" }}
             >
-              Try demo <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+              Try demo <i className="fa fa-long-arrow-right" aria-hidden="true"></i>
             </a>
             <a
               href={learnMore}
@@ -34,16 +34,16 @@ function LeftSection({
               }}
             >
               Learn more{" "}
-              <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+              <i className="fa fa-long-arrow-right" aria-hidden="true"></i>
             </a>
           </div>
 
           <div className="mt-3">
             <a href={googlePlay}>
-              <img src=" media/images/googlePlayBadge.svg" />
+              <img src="media/images/googlePlayBadge.svg" alt="Get it on Google Play" />
             </a>
             <a href={appStore} style={{ marginLeft: "50px" }}>
-              <img src="media/images/appStoreBadge.svg" />
+              <img src="media/images/appStoreBadge.svg" alt="Download on the App Store" />
             </a>
           </div>
         </div>
